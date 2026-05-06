@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 app = FastAPI(title="FPO Dashboard API", version="1.0.0")
 
-# ✅ UPDATED CORS (IMPORTANT)
+# ✅ CORS FIX
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -26,14 +26,11 @@ def home():
     return {"message": "Backend is running 🚀"}
 
 
-# ─── Mock Data Store ───────────────────────────────────────────────
+# ─── DATA ─────────────────────────────────────────────
 farmers = [
-    {"id": f"F{str(i).zfill(3)}", "name": n, "village": v, "crop": c, "land_acres": round(random.uniform(1.5, 12.0), 1), "income": random.randint(45000, 280000), "status": random.choice(["Active", "Inactive"]), "joined": (datetime.now() - timedelta(days=random.randint(30, 900))).strftime("%Y-%m-%d")}
-    for i, (n, v, c) in enumerate([
-        ("Ramesh Kumar", "Sitapur", "Wheat"), ("Sunita Devi", "Barabanki", "Rice"),
-        ("Mohan Singh", "Hardoi", "Sugarcane"), ("Priya Sharma", "Unnao", "Mustard"),
-        ("Vijay Yadav", "Lakhimpur", "Potato"), ("Kavita Patel", "Rae Bareli", "Maize"),
-    ], 1)
+    {"id": f"F{str(i).zfill(3)}", "name": f"Farmer {i}", "village": f"Village {i}", "crop": "Wheat",
+     "land_acres": random.uniform(1, 10), "income": random.randint(50000, 200000), "status": "Active"}
+    for i in range(1, 21)
 ]
 
 crops_data = {
@@ -41,28 +38,31 @@ crops_data = {
     "Rice": {"price_per_qtl": 2183},
 }
 
-transactions = []
-for i in range(20):
-    crop = random.choice(list(crops_data.keys()))
-    qty = random.randint(10, 100)
-    price = crops_data[crop]["price_per_qtl"]
-
-    transactions.append({
-        "id": f"T{str(i+1).zfill(3)}",
+transactions = [
+    {
+        "id": f"T{i}",
         "date": datetime.now().strftime("%Y-%m-%d"),
-        "crop": crop,
-        "quantity_qtl": qty,
-        "total": qty * price
-    })
+        "crop": "Wheat",
+        "quantity_qtl": random.randint(10, 100),
+        "total": random.randint(10000, 50000)
+    }
+    for i in range(1, 21)
+]
 
 
-# ─── API Routes ────────────────────────────────────────────────────
+# ─── API ROUTES ───────────────────────────────────────
 
 @app.get("/api/summary")
 def get_summary():
     return {
         "total_farmers": len(farmers),
-        "total_transactions": len(transactions)
+        "active_farmers": len(farmers),
+        "total_land_acres": sum(f["land_acres"] for f in farmers),
+        "total_sales": sum(t["total"] for t in transactions),
+        "avg_income": int(sum(f["income"] for f in farmers) / len(farmers)),
+        "total_transactions": len(transactions),
+        "crops_cultivated": len(crops_data),
+        "villages_covered": len(farmers),
     }
 
 
@@ -74,6 +74,41 @@ def get_farmers():
 @app.get("/api/transactions")
 def get_transactions():
     return {"transactions": transactions}
+
+
+@app.get("/api/crops")
+def get_crops():
+    return {"crops": [{"name": k, **v} for k, v in crops_data.items()]}
+
+
+@app.get("/api/analytics/monthly-sales")
+def monthly_sales():
+    return {"data": [{"month": "Jan", "sales": 50000}, {"month": "Feb", "sales": 70000}]}
+
+
+@app.get("/api/analytics/crop-distribution")
+def crop_distribution():
+    return {"data": [{"crop": "Wheat", "count": 10}, {"crop": "Rice", "count": 10}]}
+
+
+@app.get("/api/analytics/village-stats")
+def village_stats():
+    return {"data": []}
+
+
+@app.get("/api/analytics/income-trend")
+def income_trend():
+    return {"data": []}
+
+
+@app.get("/api/weather")
+def get_weather():
+    return {"temp": 30}
+
+
+@app.get("/api/alerts")
+def get_alerts():
+    return {"alerts": []}
 
 
 class FarmerCreate(BaseModel):
