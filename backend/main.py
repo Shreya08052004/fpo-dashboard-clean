@@ -1,20 +1,15 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 
 app = FastAPI(title="FPO Dashboard API", version="1.0.0")
 
-# ✅ CORS FIX
+# ✅ IMPORTANT FIX: CORS (ADD "*" TEMPORARILY TO DEBUG)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "https://fpo-dashboard-clean.vercel.app"
-    ],
+    allow_origins=["*"],   # 🔥 TEMP FIX (later restrict to your vercel URL)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -28,8 +23,15 @@ def home():
 
 # ─── DATA ─────────────────────────────────────────────
 farmers = [
-    {"id": f"F{str(i).zfill(3)}", "name": f"Farmer {i}", "village": f"Village {i}", "crop": "Wheat",
-     "land_acres": random.uniform(1, 10), "income": random.randint(50000, 200000), "status": "Active"}
+    {
+        "id": f"F{str(i).zfill(3)}",
+        "name": f"Farmer {i}",
+        "village": f"Village {i}",
+        "crop": "Wheat",
+        "land_acres": round(random.uniform(1, 10), 1),
+        "income": random.randint(50000, 200000),
+        "status": "Active"
+    }
     for i in range(1, 21)
 ]
 
