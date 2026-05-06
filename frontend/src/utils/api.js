@@ -1,4 +1,4 @@
-const BASE = '/api'
+const BASE = 'https://fpo-backend.onrender.com/api'
 
 async function request(path, opts = {}) {
   const res = await fetch(`${BASE}${path}`, {
@@ -11,17 +11,27 @@ async function request(path, opts = {}) {
 
 export const api = {
   summary: () => request('/summary'),
+
   farmers: (params = {}) => {
     const q = new URLSearchParams(params).toString()
     return request(`/farmers${q ? '?' + q : ''}`)
   },
+
   farmer: (id) => request(`/farmers/${id}`),
-  createFarmer: (data) => request('/farmers', { method: 'POST', body: JSON.stringify(data) }),
+
+  createFarmer: (data) =>
+    request('/farmers', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
   crops: () => request('/crops'),
+
   transactions: (params = {}) => {
     const q = new URLSearchParams(params).toString()
     return request(`/transactions${q ? '?' + q : ''}`)
   },
+
   monthlySales: () => request('/analytics/monthly-sales'),
   cropDistribution: () => request('/analytics/crop-distribution'),
   villageStats: () => request('/analytics/village-stats'),
