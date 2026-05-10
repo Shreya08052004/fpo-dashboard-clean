@@ -12,13 +12,17 @@ async function request(path, opts = {}) {
 export const api = {
   summary:          ()       => request('/summary'),
   farmers:          (p = {}) => {
-    const q = new URLSearchParams(p).toString()
+    const q = new URLSearchParams(
+      Object.fromEntries(Object.entries(p).filter(([,v]) => v !== undefined && v !== ''))
+    ).toString()
     return request(`/farmers${q ? '?' + q : ''}`)
   },
   createFarmer:     (data)   => request('/farmers', { method: 'POST', body: JSON.stringify(data) }),
   crops:            ()       => request('/crops'),
   transactions:     (p = {}) => {
-    const q = new URLSearchParams(p).toString()
+    const q = new URLSearchParams(
+      Object.fromEntries(Object.entries(p).filter(([,v]) => v !== undefined && v !== ''))
+    ).toString()
     return request(`/transactions${q ? '?' + q : ''}`)
   },
   monthlySales:     ()       => request('/analytics/monthly-sales'),
